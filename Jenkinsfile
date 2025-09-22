@@ -11,6 +11,8 @@ pipeline {
             }
             steps {
                 sh '''
+                    npm cache clean --force
+                    timeout 300 npm ci --verbose
                     ls -la
                     node --version
                     npm  --version
