@@ -26,7 +26,7 @@ pipeline {
         stage('Test') {
 
             steps {
-              sh'''
+              sh '''
                 echo "Test stage"
 
 
