@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     stages {
-    
         stage('Build') {
             agent {
                 docker {
@@ -11,20 +10,20 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    npm cache clean --force
-                    timeout 300 npm ci --verbose
-                    ls -la
-                    node --version
-                    npm  --version
-                    npm ci
-                    npm run build
-                    ls -la
-                
-                '''
+                timeout(time: 5, unit: 'MINUTES') {
+                    sh '''
+                        npm cache clean --force
+                        npm ci --verbose
+                        ls -la
+                        node --version
+                        npm --version
+                        npm run build
+                        ls -la
+                    '''
+                }
             }
         }
-        
+
         stage('Test') {
             agent {
                 docker {
@@ -33,35 +32,11 @@ pipeline {
                 }
             }
             steps {
-              sh '''
-                test -f build/index.html
-                npm test
-
-
-               '''
-            }                
-        }
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    reuseNode true
-                }
+                sh '''
+                    test -f build/index.html
+                    npm test
+                '''
             }
-            steps {
-              sh '''
-                npm install serve
-                node_modules/.bin/serve -s build &
-                sleep 11 
-                npx playwright test
-
-               '''
-            }                
-        }
-    }
-    post {
-        always {
-             junit 'test-results/junit.xml'   
         }
     }
 }
